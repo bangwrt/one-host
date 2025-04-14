@@ -27,9 +27,9 @@ services:
     networks:
       - proxy-net
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
+      - "8003:80"
+      - "9446:443"
+      - "9446:443/udp"
     volumes:
       - caddy:/data
       - ./Caddyfile:/etc/caddy/Caddyfile
