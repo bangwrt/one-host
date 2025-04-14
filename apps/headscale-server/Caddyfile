@@ -1,0 +1,3 @@
+headscale.0newrt.my.id {
+    reverse_proxy headscale:8080
+}
