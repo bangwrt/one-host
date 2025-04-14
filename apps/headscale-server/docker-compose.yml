@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3"
 
 # This configuration is for running headscale
 # on a server with a public IP address (e.g. a VPS)
@@ -6,16 +6,27 @@ version: "3.8"
 # For connecting your home server to the Headscale network,
 # please checkout the headscale-client/ directory.
 
+volumes:
+  caddy:
   headscale:
-    image: "headscale/headscale:latest"
+
+services:
+  caddy:
+    image: "caddy"
+    container_name: "caddy"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy:/data
+      - ./Caddyfile:/etc/caddy/Caddyfile
+
+  headscale:
+    image: "headscale/headscale"
     container_name: "headscale"
     command: serve
     restart: unless-stopped
-    ports:
-      - "9500:9500" # Port untuk Headscale
     volumes:
-      - ./headscale/config:/etc/headscale
-      - ./headscale/data:/var/lib/headscale
-    environment:
-      - HEADSCALE_LOG_LEVEL=info
-      - HEADSCALE_SERVER_URL=http://localhost:9500
+      - headscale:/var/lib/headscale
+      - ./config.yaml:/etc/headscale/config.yaml
