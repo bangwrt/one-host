@@ -1,23 +1,38 @@
-version: '3'
-
-networks:
-  # create this network in command line using `docker network create proxy-net`
-  proxy-net:
-    name: proxy-net
-    external: true
-
+version: '3.8'
 services:
-  nginx:
+  app:
     image: 'jc21/nginx-proxy-manager:latest'
-    container_name: 'nginx_proxy_manager'
+    container_name: nginx-proxy-manager
     restart: unless-stopped
     ports:
-      - '8080:80'
-      - '9001:443'
-      # you can remove port 81 after you have HTTPS setup to your Nginx Proxy Manager admin page
+      - '80:80'
+      - '443:443'
       - '81:81'
+    environment:
+      DB_MYSQL_HOST: "db"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      DB_MYSQL_PASSWORD: "npm"
+      DB_MYSQL_NAME: "npm"
     volumes:
-      - '${HOME}/docker-data/nginx/data:/data'
-      - '${HOME}/docker-data/nginx/letsencrypt:/etc/letsencrypt'
-    networks:
-      - proxy-net
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    depends_on:
+      - db
+
+  db:
+    image: 'jc21/mariadb-aria:latest'
+    container_name: mariadb-nginx-proxy-manager
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+networks:
+  default:
+    external: true
+    name: proxy_network
